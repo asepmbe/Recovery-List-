@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Pemulihan Data</title>
+
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #eef2f6;
+    padding: 15px;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.update-time {
+    text-align: center;
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.card {
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dce1e7;
+}
+
+.user {
+    font-weight: 600;
+    color: #34495e;
+    font-size: 14px;
+}
+
+.status {
+    font-size: 12px;
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+/* Warna status */
+.selesai { color: #27ae60; }
+.proses { color: #f39c12; }
+.belum { color: #e74c3c; }
+
+.detail {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    background: #dfe6ed;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 14px;
+}
+
+.progress {
+    height: 100%;
+    text-align: center;
+    color: white;
+    font-size: 10px;
+    line-height: 14px;
+}
+
+/* Warna progress */
+.green { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+.yellow { background: linear-gradient(90deg, #f1c40f, #f39c12); }
+.red { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+@media (min-width: 600px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Progress Pemulihan Data User</h2>
+<div class="update-time" id="updateTime"></div>
+
+<div class="container" id="container"></div>
+
+<script>
+const data = [
+{name:"Agung", progress:100, status:"Selesai (Recovery dari server)", detail:"Backup terdapat di laptopnya"},
+{name:"Airin", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Santi, belum dicek di laptop pribadi"},
+{name:"Alfi", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Daniel dan Santi"},
+{name:"Ara", progress:100, status:"Selesai (Recovery dari server)", detail:"Belum dicek di laptop pribadi"},
+{name:"Cornel", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Santi"},
+{name:"Daniel", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya dan laptop Santi"},
+{name:"Dian", progress:20, status:"Sedang recovery", detail:"Data ditemukan di server"},
+{name:"Dimas", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Fenni", progress:0, status:"Belum ada data", detail:""},
+{name:"Fifi", progress:0, status:"Belum ada data", detail:""},
+{name:"Fildzah", progress:0, status:"Belum ada data", detail:""},
+{name:"Heni", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Ica", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Indri", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Intan", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Ivana", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Jessica", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
+{name:"Jujulia", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Lisa", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Maya", progress:0, status:"Belum ada data", detail:""},
+{name:"Milah", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Indah", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Nella", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
+{name:"Public", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
+{name:"Raymond", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Santi", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
+{name:"Steffi", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Vania", progress:0, status:"Belum ada data", detail:""},
+{name:"Vioni", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
+{name:"Wilma", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Yusuf", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"}
+];
+
+const container = document.getElementById("container");
+
+function updateTime() {
+    document.getElementById("updateTime").innerText =
+        "Terakhir diperbarui: " + new Date().toLocaleString('id-ID');
+}
+
+function getClass(progress){
+    if(progress === 100) return ["green","selesai"];
+    if(progress === 0) return ["red","belum"];
+    return ["yellow","proses"];
+}
+
+function render() {
+    container.innerHTML = "";
+    data.forEach(u => {
+        let [barClass, statusClass] = getClass(u.progress);
+
+        container.innerHTML += `
+        <div class="card">
+            <div class="user">${u.name}</div>
+            <div class="status ${statusClass}">${u.status}</div>
+            <div class="detail">${u.detail}</div>
+            <div class="progress-bar">
+                <div class="progress ${barClass}" style="width:${u.progress}%">
+                    ${u.progress}%
+                </div>
+            </div>
+        </div>
+        `;
+    });
+}
+
+updateTime();
+render();
+
+setInterval(() => {
+    updateTime();
+    render();
+}, 30000);
+</script>
+
+</body>
+</html>
