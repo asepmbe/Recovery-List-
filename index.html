@@ -44,21 +44,19 @@ cursor:pointer;
 font-size:12px;
 }
 
-.file-box{
+#popup{
 display:none;
-margin-top:8px;
-background:#f9f9f9;
-padding:8px;
-border-radius:5px;
-font-size:12px;
-}
-
-@media(min-width:600px){
-.container{grid-template-columns:repeat(2,1fr);}
-.summary{grid-template-columns:repeat(4,1fr);}
-}
-@media(min-width:900px){
-.container{grid-template-columns:repeat(3,1fr);}
+position:fixed;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:15px;
+border-radius:8px;
+box-shadow:0 0 10px rgba(0,0,0,0.3);
+z-index:999;
+max-width:350px;
+max-height:400px;
+overflow:auto;
 }
 </style>
 </head>
@@ -72,18 +70,25 @@ font-size:12px;
 <input class="search" placeholder="Cari nama..." onkeyup="searchUser(this.value)">
 
 <div class="summary">
-<div class="box selesai">✔ <span id="done"></span><br>Selesai Recovery</div>
-<div class="box proses">⚠ <span id="process"></span><br>Proses Recovery</div>
-<div class="box belum">✖ <span id="notyet"></span><br>Belum Recovery</div>
-<div class="box">📊 <span id="total"></span><br>Total Data</div>
+<div class="box selesai">✔ <span id="done"></span><br>Selesai</div>
+<div class="box proses">⚠ <span id="process"></span><br>Proses</div>
+<div class="box belum">✖ <span id="notyet"></span><br>Belum</div>
+<div class="box">📊 <span id="total"></span><br>Total</div>
 </div>
 
 <div id="container" class="container"></div>
 
+<div id="popup">
+<div id="popupContent"></div>
+<br>
+<button onclick="closePopup()">Tutup</button>
+</div>
+
 <script>
+
 const data = [
 {name:"Agung",progress:100,detail:"Selesai (Recovery dari server). Backup terdapat di laptopnya"},
-{name:"Airin",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi"},
+{name:"Airin",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi, belum dicek di laptop pribadi"},
 {name:"Alfi",progress:10,detail:"Data ada di server, backup terdapat di laptop Daniel dan Santi"},
 {name:"Ara",progress:100,detail:"Selesai (Recovery dari server), belum dicek di laptop pribadi"},
 {name:"Cornel",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi"},
@@ -105,7 +110,7 @@ const data = [
 {name:"Milah",progress:100,detail:"Selesai (Recovery dari server)"},
 {name:"Indah",progress:0,detail:"Belum dicek di laptopnya"},
 {name:"Nella",progress:10,detail:"Backup terdapat di laptopnya"},
-{name:"Public",progress:10,detail:"Backup terdapat di beberapa laptop"},
+{name:"Public",progress:10,detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
 {name:"Raymond",progress:0,detail:"Belum dicek di laptopnya"},
 {name:"Santi",progress:100,detail:"Selesai (Recovery dari server)"},
 {name:"Steffi",progress:100,detail:"Selesai (Recovery dari server)"},
@@ -116,14 +121,25 @@ const data = [
 ];
 
 const passwords = {
-"Agung":"A9xK2p!","Airin":"R4mZ8q#","Alfi":"L2vN7@d","Ara":"P8sT1!x",
-"Cornel":"C7qW9#z","Daniel":"D3kL0@p","Dian":"N5xB2!m","Dimas":"M8rQ4#t",
-"Fenni":"F1zX9@k","Fifi":"F6pL3!s","Fildzah":"Z2wE8#r","Heni":"H9kP1@x",
-"Ica":"I3vT7!m","Indri":"I8xQ2#p","Intan":"T4mL9@z","Ivana":"V1kR6!s",
-"Jessica":"J7pN3#x","Jujulia":"U2zK8@q","Lisa":"L9xD4!p","Maya":"M3qT7#r",
-"Milah":"H6vP1@k","Indah":"D2mX8!z","Nella":"N7kQ3@p","Public":"P4zL9#x",
-"Raymond":"R1vT6!m","Santi":"S8xK2@p","Steffi":"F3qN7#r","Vania":"V9mL1!k",
-"Vioni":"O2xP8@z","Wilma":"W7kD3#q","Yusuf":"Y4vT9!p"
+"Yusuf":"Y4vT9!p"
+};
+
+// hanya contoh Yusuf
+const fileData = {
+"Yusuf":[
+"📁 PT ASA BARA INTERNASIONAL",
+"📁 PT CAHAYA PERKASA MANDIRI",
+"📁 PT DEMSSKA MANDIRI SEJAHTERA",
+"📁 PT. EKA DWIKA PERKASA",
+"📁 PT. INDOHANSA SENTRAFILTRA (Daniel)",
+"📁 PT. INDOHANSA SENTRAFILTRA KENCANA",
+"📁 PT. KAIYUAN INTERNATIONAL TRADING",
+"📁 PT. UNIVERSAL TEKNOLOGI SEJAHTERA",
+"📁 PT. UNRIA PRATAMA KENCANA",
+"📄 EFIN EMAIL NO HP KLIEN - YUSUF.xlsx",
+"📄 GAJI UPAH & PIUT KARY.xlsx",
+"📄 SAMA GL GAJI & PIUT.xlsx"
+]
 };
 
 function render(){
@@ -132,29 +148,17 @@ data.sort((a,b)=>a.progress-b.progress);
 let html="";
 data.forEach(u=>{
 let color=u.progress==100?"green":u.progress==0?"redbar":"yellow";
-let red=u.progress==0?"red":"";
-let lock=u.progress<100?"🔒":"";
 
 html+=`
-<div class="card ${red}">
-<div class="user">${u.name} ${lock}</div>
+<div class="card">
+<div class="user">${u.name}</div>
 <div class="detail">${u.detail}</div>
 
 <div class="progress-bar">
 <div class="progress ${color}" style="width:${u.progress}%">${u.progress}%</div>
 </div>
 
-<button class="btn" onclick="event.stopPropagation(); openData('${u.name}')">
-📂 Lihat Data (Raw File)
-</button>
-
-<div id="file-${u.name}" class="file-box">
-<ul>
-<li>dokumen1.docx</li>
-<li>laporan.xlsx</li>
-<li>foto.jpg</li>
-</ul>
-</div>
+<button class="btn" onclick="openData('${u.name}')">📂 Lihat Data</button>
 </div>`;
 });
 
@@ -184,13 +188,24 @@ alert("Data belum selesai recovery!");
 return;
 }
 
-let pass=prompt("Masukkan password:");
-if(pass===passwords[name]){
-let el=document.getElementById("file-"+name);
-el.style.display = el.style.display==="none"?"block":"none";
-}else{
+let pass=prompt("Masukkan password (Yusuf saja dulu):");
+if(name==="Yusuf" && pass!==passwords[name]){
 alert("Password salah!");
+return;
 }
+
+let files = fileData[name] || ["Belum ada data"];
+
+let html="<b>Isi Folder "+name+"</b><ul>";
+files.forEach(f=>{ html+="<li>"+f+"</li>"; });
+html+="</ul>";
+
+document.getElementById("popupContent").innerHTML=html;
+document.getElementById("popup").style.display="block";
+}
+
+function closePopup(){
+document.getElementById("popup").style.display="none";
 }
 
 function searchUser(val){
@@ -211,6 +226,7 @@ updateTime();
 
 init();
 setInterval(init,30000);
+
 </script>
 
 </body>
