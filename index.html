@@ -1,1 +1,190 @@
- 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Recovery</title>
+
+<style>
+body {font-family: Arial; background:#eef2f6; margin:0; padding:15px;}
+h2{text-align:center;}
+.subtitle{text-align:center;font-size:13px;color:#666;}
+.update-time{text-align:center;font-size:12px;margin-bottom:10px;}
+
+.search{width:100%;max-width:400px;margin:10px auto;display:block;padding:8px;}
+
+.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px auto;max-width:1000px;}
+.box{background:#fff;padding:10px;border-radius:8px;text-align:center;font-weight:bold;}
+.selesai{color:#27ae60;}
+.proses{color:#f39c12;}
+.belum{color:#e74c3c;}
+
+.global-bar{max-width:1000px;margin:10px auto;background:#ddd;border-radius:10px;overflow:hidden;}
+.global-progress{height:20px;background:#27ae60;color:#fff;text-align:center;}
+
+.container{display:grid;gap:10px;max-width:1000px;margin:auto;}
+.card{background:#fff;padding:10px;border-radius:8px;border:1px solid #ccc;cursor:pointer;}
+.card.red{border:2px solid red;}
+
+.progress-bar{background:#ddd;height:10px;border-radius:10px;}
+.progress{height:100%;color:#fff;font-size:10px;text-align:center;}
+.green{background:#27ae60;}
+.yellow{background:#f39c12;}
+.redbar{background:#e74c3c;}
+
+@media(min-width:600px){
+.container{grid-template-columns:repeat(2,1fr);}
+.summary{grid-template-columns:repeat(5,1fr);}
+}
+@media(min-width:900px){
+.container{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+
+<body>
+
+<h2>Dashboard Recovery</h2>
+<div class="subtitle">Monitoring Pemulihan Data</div>
+<div class="update-time" id="time"></div>
+
+<input class="search" placeholder="Cari nama..." onkeyup="searchUser(this.value)">
+
+<div class="summary">
+<div class="box selesai">✔ <span id="done"></span><br>Selesai</div>
+<div class="box proses">⚠ <span id="process"></span><br>Proses</div>
+<div class="box belum">✖ <span id="notyet"></span><br>Belum</div>
+<div class="box">📊 <span id="total"></span><br>Total</div>
+<div class="box">📈 <span id="percent"></span><br>Progress</div>
+</div>
+
+<div class="global-bar">
+<div id="global" class="global-progress"></div>
+</div>
+
+<div id="container" class="container"></div>
+
+<script>
+const data = [
+{name:"Agung",progress:100,detail:"Selesai (Recovery dari server). Backup terdapat di laptopnya"},
+{name:"Airin",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi, belum dicek di laptop pribadi"},
+{name:"Alfi",progress:10,detail:"Data ada di server, backup terdapat di laptop Daniel dan Santi"},
+{name:"Ara",progress:100,detail:"Selesai (Recovery dari server), belum dicek di laptop pribadi"},
+{name:"Cornel",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi"},
+{name:"Daniel",progress:10,detail:"Backup terdapat di laptopnya dan laptop Santi"},
+{name:"Dian",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Dimas",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Fenni",progress:0,detail:"Belum ada data"},
+{name:"Fifi",progress:0,detail:"Belum ada data"},
+{name:"Fildzah",progress:0,detail:"Belum ada data"},
+{name:"Heni",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Ica",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Indri",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Intan",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Ivana",progress:10,detail:"Backup terdapat di laptop Santi"},
+{name:"Jessica",progress:10,detail:"Backup terdapat di laptopnya"},
+{name:"Jujulia",progress:0,detail:"Belum dicek di laptopnya"},
+{name:"Lisa",progress:0,detail:"Belum dicek di laptopnya"},
+{name:"Maya",progress:0,detail:"Belum ada data"},
+{name:"Milah",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Indah",progress:0,detail:"Belum dicek di laptopnya"},
+{name:"Nella",progress:10,detail:"Backup terdapat di laptopnya"},
+{name:"Public",progress:10,detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
+{name:"Raymond",progress:0,detail:"Belum dicek di laptopnya"},
+{name:"Santi",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Steffi",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Vania",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Vioni",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Wilma",progress:100,detail:"Selesai (Recovery dari server)"},
+{name:"Yusuf",progress:100,detail:"Selesai (Recovery dari server)"}
+];
+
+const passwords = {
+"Agung":"A9xK2p!","Airin":"R4mZ8q#","Alfi":"L2vN7@d","Ara":"P8sT1!x",
+"Cornel":"C7qW9#z","Daniel":"D3kL0@p","Dian":"N5xB2!m","Dimas":"M8rQ4#t",
+"Fenni":"F1zX9@k","Fifi":"F6pL3!s","Fildzah":"Z2wE8#r","Heni":"H9kP1@x",
+"Ica":"I3vT7!m","Indri":"I8xQ2#p","Intan":"T4mL9@z","Ivana":"V1kR6!s",
+"Jessica":"J7pN3#x","Jujulia":"U2zK8@q","Lisa":"L9xD4!p","Maya":"M3qT7#r",
+"Milah":"H6vP1@k","Indah":"D2mX8!z","Nella":"N7kQ3@p","Public":"P4zL9#x",
+"Raymond":"R1vT6!m","Santi":"S8xK2@p","Steffi":"F3qN7#r","Vania":"V9mL1!k",
+"Vioni":"O2xP8@z","Wilma":"W7kD3#q","Yusuf":"Y4vT9!p"
+};
+
+function render(){
+data.sort((a,b)=>a.progress-b.progress);
+
+let html="";
+data.forEach(u=>{
+let color=u.progress==100?"green":u.progress==0?"redbar":"yellow";
+let red=u.progress==0?"red":"";
+let lock=u.progress<100?"🔒":"";
+
+html+=`
+<div class="card ${red}" onclick="openData('${u.name}')">
+<b>${u.name} ${lock}</b><br>
+${u.detail}
+<div class="progress-bar">
+<div class="progress ${color}" style="width:${u.progress}%">${u.progress}%</div>
+</div>
+</div>`;
+});
+
+document.getElementById("container").innerHTML=html;
+updateSummary();
+}
+
+function updateSummary(){
+let done=0,process=0,notyet=0;
+data.forEach(u=>{
+if(u.progress==100)done++;
+else if(u.progress==0)notyet++;
+else process++;
+});
+
+let total=data.length;
+let percent=Math.round(done/total*100);
+
+document.getElementById("done").innerText=done;
+document.getElementById("process").innerText=process;
+document.getElementById("notyet").innerText=notyet;
+document.getElementById("total").innerText=total;
+document.getElementById("percent").innerText=percent+"%";
+
+document.getElementById("global").style.width=percent+"%";
+document.getElementById("global").innerText=percent+"%";
+}
+
+function openData(name){
+let user=data.find(u=>u.name==name);
+if(user.progress<100){alert("Belum selesai recovery!");return;}
+
+let pass=prompt("Password:");
+if(pass===passwords[name]){
+alert("Menampilkan file (dummy)");
+}else{
+alert("Password salah!");
+}
+}
+
+function searchUser(val){
+val=val.toLowerCase();
+document.querySelectorAll(".card").forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(val)?"block":"none";
+});
+}
+
+function updateTime(){
+document.getElementById("time").innerText=new Date().toLocaleString();
+}
+
+function init(){
+render();
+updateTime();
+}
+
+init();
+setInterval(init,30000);
+</script>
+
+</body>
+</html>
