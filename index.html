@@ -19,22 +19,43 @@ h2{text-align:center;}
 .proses{color:#f39c12;}
 .belum{color:#e74c3c;}
 
-.global-bar{max-width:1000px;margin:10px auto;background:#ddd;border-radius:10px;overflow:hidden;}
-.global-progress{height:20px;background:#27ae60;color:#fff;text-align:center;}
-
 .container{display:grid;gap:10px;max-width:1000px;margin:auto;}
-.card{background:#fff;padding:10px;border-radius:8px;border:1px solid #ccc;cursor:pointer;}
-.card.red{border:2px solid red;}
+.card{background:#fff;padding:12px;border-radius:8px;border:1px solid #ccc;}
+.card.red{border:2px solid #e74c3c;}
 
-.progress-bar{background:#ddd;height:10px;border-radius:10px;}
-.progress{height:100%;color:#fff;font-size:10px;text-align:center;}
+.user{font-weight:bold;margin-bottom:5px;}
+.detail{font-size:12px;margin-bottom:8px;color:#555;}
+
+.progress-bar{background:#ddd;height:12px;border-radius:10px;}
+.progress{height:100%;color:#fff;font-size:10px;text-align:center;line-height:12px;}
+
 .green{background:#27ae60;}
 .yellow{background:#f39c12;}
 .redbar{background:#e74c3c;}
 
+.btn{
+margin-top:8px;
+padding:6px 10px;
+border:none;
+background:#3498db;
+color:white;
+border-radius:5px;
+cursor:pointer;
+font-size:12px;
+}
+
+.file-box{
+display:none;
+margin-top:8px;
+background:#f9f9f9;
+padding:8px;
+border-radius:5px;
+font-size:12px;
+}
+
 @media(min-width:600px){
 .container{grid-template-columns:repeat(2,1fr);}
-.summary{grid-template-columns:repeat(5,1fr);}
+.summary{grid-template-columns:repeat(4,1fr);}
 }
 @media(min-width:900px){
 .container{grid-template-columns:repeat(3,1fr);}
@@ -51,15 +72,10 @@ h2{text-align:center;}
 <input class="search" placeholder="Cari nama..." onkeyup="searchUser(this.value)">
 
 <div class="summary">
-<div class="box selesai">✔ <span id="done"></span><br>Selesai</div>
-<div class="box proses">⚠ <span id="process"></span><br>Proses</div>
-<div class="box belum">✖ <span id="notyet"></span><br>Belum</div>
-<div class="box">📊 <span id="total"></span><br>Total</div>
-<div class="box">📈 <span id="percent"></span><br>Progress</div>
-</div>
-
-<div class="global-bar">
-<div id="global" class="global-progress"></div>
+<div class="box selesai">✔ <span id="done"></span><br>Selesai Recovery</div>
+<div class="box proses">⚠ <span id="process"></span><br>Proses Recovery</div>
+<div class="box belum">✖ <span id="notyet"></span><br>Belum Recovery</div>
+<div class="box">📊 <span id="total"></span><br>Total Data</div>
 </div>
 
 <div id="container" class="container"></div>
@@ -67,7 +83,7 @@ h2{text-align:center;}
 <script>
 const data = [
 {name:"Agung",progress:100,detail:"Selesai (Recovery dari server). Backup terdapat di laptopnya"},
-{name:"Airin",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi, belum dicek di laptop pribadi"},
+{name:"Airin",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi"},
 {name:"Alfi",progress:10,detail:"Data ada di server, backup terdapat di laptop Daniel dan Santi"},
 {name:"Ara",progress:100,detail:"Selesai (Recovery dari server), belum dicek di laptop pribadi"},
 {name:"Cornel",progress:10,detail:"Data ada di server, backup terdapat di laptop Santi"},
@@ -89,7 +105,7 @@ const data = [
 {name:"Milah",progress:100,detail:"Selesai (Recovery dari server)"},
 {name:"Indah",progress:0,detail:"Belum dicek di laptopnya"},
 {name:"Nella",progress:10,detail:"Backup terdapat di laptopnya"},
-{name:"Public",progress:10,detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
+{name:"Public",progress:10,detail:"Backup terdapat di beberapa laptop"},
 {name:"Raymond",progress:0,detail:"Belum dicek di laptopnya"},
 {name:"Santi",progress:100,detail:"Selesai (Recovery dari server)"},
 {name:"Steffi",progress:100,detail:"Selesai (Recovery dari server)"},
@@ -120,11 +136,24 @@ let red=u.progress==0?"red":"";
 let lock=u.progress<100?"🔒":"";
 
 html+=`
-<div class="card ${red}" onclick="openData('${u.name}')">
-<b>${u.name} ${lock}</b><br>
-${u.detail}
+<div class="card ${red}">
+<div class="user">${u.name} ${lock}</div>
+<div class="detail">${u.detail}</div>
+
 <div class="progress-bar">
 <div class="progress ${color}" style="width:${u.progress}%">${u.progress}%</div>
+</div>
+
+<button class="btn" onclick="event.stopPropagation(); openData('${u.name}')">
+📂 Lihat Data (Raw File)
+</button>
+
+<div id="file-${u.name}" class="file-box">
+<ul>
+<li>dokumen1.docx</li>
+<li>laporan.xlsx</li>
+<li>foto.jpg</li>
+</ul>
 </div>
 </div>`;
 });
@@ -141,26 +170,24 @@ else if(u.progress==0)notyet++;
 else process++;
 });
 
-let total=data.length;
-let percent=Math.round(done/total*100);
-
 document.getElementById("done").innerText=done;
 document.getElementById("process").innerText=process;
 document.getElementById("notyet").innerText=notyet;
-document.getElementById("total").innerText=total;
-document.getElementById("percent").innerText=percent+"%";
-
-document.getElementById("global").style.width=percent+"%";
-document.getElementById("global").innerText=percent+"%";
+document.getElementById("total").innerText=data.length;
 }
 
 function openData(name){
 let user=data.find(u=>u.name==name);
-if(user.progress<100){alert("Belum selesai recovery!");return;}
 
-let pass=prompt("Password:");
+if(user.progress<100){
+alert("Data belum selesai recovery!");
+return;
+}
+
+let pass=prompt("Masukkan password:");
 if(pass===passwords[name]){
-alert("Menampilkan file (dummy)");
+let el=document.getElementById("file-"+name);
+el.style.display = el.style.display==="none"?"block":"none";
 }else{
 alert("Password salah!");
 }
