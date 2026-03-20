@@ -20,6 +20,13 @@ h2 {
     margin-bottom: 5px;
 }
 
+.subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
+
 .update-time {
     text-align: center;
     font-size: 12px;
@@ -27,6 +34,31 @@ h2 {
     margin-bottom: 15px;
 }
 
+/* SUMMARY */
+.summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 1000px;
+    margin: 10px auto 20px;
+}
+
+.box {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    border: 1px solid #dce1e7;
+    font-weight: 600;
+}
+
+.box.selesai { color: #27ae60; }
+.box.proses { color: #f39c12; }
+.box.belum { color: #e74c3c; }
+.box.total { color: #34495e; }
+
+/* CARD */
 .container {
     display: grid;
     grid-template-columns: 1fr;
@@ -84,8 +116,10 @@ h2 {
 .yellow { background: linear-gradient(90deg, #f1c40f, #f39c12); }
 .red { background: linear-gradient(90deg, #e74c3c, #c0392b); }
 
+/* RESPONSIVE */
 @media (min-width: 600px) {
     .container { grid-template-columns: repeat(2, 1fr); }
+    .summary { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (min-width: 900px) {
@@ -97,7 +131,15 @@ h2 {
 <body>
 
 <h2>Progress Pemulihan Data User</h2>
+<div class="subtitle">Ringkasan Progress Recovery</div>
 <div class="update-time" id="updateTime"></div>
+
+<div class="summary">
+    <div class="box selesai">✔ <span id="done">0</span><br>Selesai Recovery</div>
+    <div class="box proses">⚠ <span id="process">0</span><br>Proses Recovery</div>
+    <div class="box belum">✖ <span id="notyet">0</span><br>Belum Recovery</div>
+    <div class="box total">📊 <span id="total">0</span><br>Total Data</div>
+</div>
 
 <div class="container" id="container"></div>
 
@@ -149,6 +191,21 @@ function getStatusStyle(progress){
     return {bar:"yellow", text:"proses", icon:"⚠"};
 }
 
+function updateSummary(){
+    let done = 0, process = 0, notyet = 0;
+
+    data.forEach(u => {
+        if(u.progress === 100) done++;
+        else if(u.progress === 0) notyet++;
+        else process++;
+    });
+
+    document.getElementById("done").innerText = done;
+    document.getElementById("process").innerText = process;
+    document.getElementById("notyet").innerText = notyet;
+    document.getElementById("total").innerText = data.length;
+}
+
 function render() {
     container.innerHTML = "";
     data.forEach(u => {
@@ -171,10 +228,12 @@ function render() {
 
 updateTime();
 render();
+updateSummary();
 
 setInterval(() => {
     updateTime();
     render();
+    updateSummary();
 }, 30000);
 </script>
 
