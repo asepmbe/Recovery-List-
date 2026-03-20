@@ -156,6 +156,12 @@ const fileData = {
 ]
 };
 
+/* MASKING */
+function maskText(text){
+if(text.length <= 10) return text;
+return text.substring(0,10) + "......";
+}
+
 function render(){
 data.sort((a,b)=>a.progress-b.progress);
 
@@ -212,7 +218,9 @@ return;
 let files = fileData[name] || ["Belum ada data"];
 
 let html="<ul>";
-files.forEach(f=>{ html+="<li>"+f+"</li>"; });
+files.forEach(f=>{
+html += "<li>"+maskText(f)+"</li>";
+});
 html+="</ul>";
 
 showPopup("Isi Folder "+name, html);
