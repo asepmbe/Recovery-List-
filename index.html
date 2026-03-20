@@ -13,34 +13,38 @@ body {
     margin: 0;
 }
 
-h2 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 20px;
-    margin-bottom: 5px;
-}
+h2 { text-align: center; }
 
 .subtitle {
     text-align: center;
     font-size: 13px;
     color: #7f8c8d;
-    margin-bottom: 10px;
 }
 
 .update-time {
     text-align: center;
     font-size: 12px;
-    color: #7f8c8d;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+/* SEARCH */
+.search {
+    max-width: 400px;
+    margin: 10px auto;
+    display: block;
+    padding: 8px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
 /* SUMMARY */
 .summary {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2,1fr);
     gap: 10px;
     max-width: 1000px;
-    margin: 10px auto 20px;
+    margin: 10px auto;
 }
 
 .box {
@@ -48,60 +52,62 @@ h2 {
     padding: 10px;
     border-radius: 8px;
     text-align: center;
-    font-size: 13px;
-    border: 1px solid #dce1e7;
-    font-weight: 600;
-}
-
-.box.selesai { color: #27ae60; }
-.box.proses { color: #f39c12; }
-.box.belum { color: #e74c3c; }
-.box.total { color: #34495e; }
-
-/* CARD */
-.container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    max-width: 1000px;
-    margin: auto;
-}
-
-.card {
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #dce1e7;
-}
-
-.user {
-    font-weight: 600;
-    color: #34495e;
-    font-size: 14px;
-}
-
-.status {
-    font-size: 12px;
-    margin: 5px 0;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .selesai { color: #27ae60; }
 .proses { color: #f39c12; }
 .belum { color: #e74c3c; }
 
-.detail {
-    font-size: 12px;
-    color: #555;
-    margin-bottom: 8px;
-}
-
-.progress-bar {
-    width: 100%;
-    background: #dfe6ed;
+/* GLOBAL BAR */
+.global-bar {
+    max-width: 1000px;
+    margin: 10px auto;
+    background: #ddd;
     border-radius: 10px;
     overflow: hidden;
-    height: 14px;
+}
+
+.global-progress {
+    height: 20px;
+    background: linear-gradient(90deg,#2ecc71,#27ae60);
+    color: white;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+/* CARD */
+.container {
+    display: grid;
+    gap: 10px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #dce1e7;
+    cursor: pointer;
+}
+
+.card.red {
+    border: 2px solid #e74c3c;
+}
+
+.user { font-weight: bold; }
+
+.status { font-size: 12px; }
+
+.detail { font-size: 12px; margin-bottom: 5px; }
+
+.progress-bar {
+    background: #ddd;
+    height: 12px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .progress {
@@ -109,137 +115,142 @@ h2 {
     text-align: center;
     color: white;
     font-size: 10px;
-    line-height: 14px;
 }
 
-.green { background: linear-gradient(90deg, #2ecc71, #27ae60); }
-.yellow { background: linear-gradient(90deg, #f1c40f, #f39c12); }
-.red { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+.green { background: #27ae60; }
+.yellow { background: #f39c12; }
+.redbar { background: #e74c3c; }
 
-/* RESPONSIVE */
-@media (min-width: 600px) {
-    .container { grid-template-columns: repeat(2, 1fr); }
-    .summary { grid-template-columns: repeat(5, 1fr); }
+@media (min-width:600px){
+    .container { grid-template-columns: repeat(2,1fr); }
+    .summary { grid-template-columns: repeat(5,1fr); }
 }
 
-@media (min-width: 900px) {
-    .container { grid-template-columns: repeat(3, 1fr); }
+@media (min-width:900px){
+    .container { grid-template-columns: repeat(3,1fr); }
 }
 </style>
 </head>
 
 <body>
 
-<h2>Progress Pemulihan Data User</h2>
-<div class="subtitle">Ringkasan Progress Recovery</div>
+<h2>Progress Pemulihan Data</h2>
+<div class="subtitle">Dashboard Recovery</div>
 <div class="update-time" id="updateTime"></div>
 
+<input type="text" class="search" placeholder="Cari nama..." onkeyup="searchUser(this.value)">
+
 <div class="summary">
-    <div class="box selesai">✔ <span id="done">0</span><br>Selesai Recovery</div>
-    <div class="box proses">⚠ <span id="process">0</span><br>Proses Recovery</div>
-    <div class="box belum">✖ <span id="notyet">0</span><br>Belum Recovery</div>
-    <div class="box total">📊 <span id="total">0</span><br>Total Data</div>
-    <div class="box total">📈 <span id="percent">0%</span><br>Progress Total</div>
+<div class="box selesai">✔ <span id="done"></span><br>Selesai</div>
+<div class="box proses">⚠ <span id="process"></span><br>Proses</div>
+<div class="box belum">✖ <span id="notyet"></span><br>Belum</div>
+<div class="box">📊 <span id="total"></span><br>Total</div>
+<div class="box">📈 <span id="percent"></span><br>Progress</div>
+</div>
+
+<div class="global-bar">
+<div class="global-progress" id="globalProgress"></div>
 </div>
 
 <div class="container" id="container"></div>
 
 <script>
-const data = [
-{name:"Agung", progress:100, status:"Selesai (Recovery dari server)", detail:"Backup terdapat di laptopnya"},
-{name:"Airin", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Santi, belum dicek di laptop pribadi"},
-{name:"Alfi", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Daniel dan Santi"},
-{name:"Ara", progress:100, status:"Selesai (Recovery dari server)", detail:"Belum dicek di laptop pribadi"},
-{name:"Cornel", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Santi"},
-{name:"Daniel", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya dan laptop Santi"},
-{name:"Dian", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
-{name:"Dimas", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Fenni", progress:0, status:"Belum ada data", detail:""},
-{name:"Fifi", progress:0, status:"Belum ada data", detail:""},
-{name:"Fildzah", progress:0, status:"Belum ada data", detail:""},
-{name:"Heni", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Ica", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Indri", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Intan", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Ivana", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Jessica", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
-{name:"Jujulia", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
-{name:"Lisa", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
-{name:"Maya", progress:0, status:"Belum ada data", detail:""},
-{name:"Milah", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
-{name:"Indah", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
-{name:"Nella", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
-{name:"Public", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
-{name:"Raymond", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
-{name:"Santi", progress:100, status:"Selesai (Recovery dari server)", detail:"Backup terdapat di laptopnya"},
-{name:"Steffi", progress:100, status:"Selesai (Recovery dari server)", detail:"Backup terdapat di laptop Santi"},
-{name:"Vania", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
-{name:"Vioni", progress:100, status:"Selesai (Recovery dari server)", detail:"Backup terdapat di laptop Santi"},
-{name:"Wilma", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
-{name:"Yusuf", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"}
-];
+let data = [...]; // (pakai data sebelumnya Abi)
 
-const container = document.getElementById("container");
+const passwords = {}; // (pakai password sebelumnya Abi)
 
-function updateTime() {
-    document.getElementById("updateTime").innerText =
-        "Terakhir diperbarui: " + new Date().toLocaleString('id-ID');
+function updateTime(){
+document.getElementById("updateTime").innerText =
+"Update: " + new Date().toLocaleString('id-ID');
 }
 
-function getStatusStyle(progress){
-    if(progress === 100) return {bar:"green", text:"selesai", icon:"✔"};
-    if(progress === 0) return {bar:"red", text:"belum", icon:"✖"};
-    return {bar:"yellow", text:"proses", icon:"⚠"};
+function sortData(){
+data.sort((a,b)=> a.progress - b.progress);
+}
+
+function getStyle(p){
+if(p==100) return ["green","✔ selesai"];
+if(p==0) return ["redbar","✖ belum"];
+return ["yellow","⚠ proses"];
+}
+
+function render(){
+let html="";
+data.forEach(u=>{
+let [bar,stat]=getStyle(u.progress);
+let lock = u.progress<100 ? "🔒" : "";
+let red = u.progress==0 ? "red":"";
+
+html+=`
+<div class="card ${red}" onclick="toggle('${u.name}')">
+<div class="user">${u.name} ${lock}</div>
+<div class="status">${stat}</div>
+<div class="detail">${u.detail}</div>
+<div class="progress-bar">
+<div class="progress ${bar}" style="width:${u.progress}%">${u.progress}%</div>
+</div>
+<div id="file-${u.name}" style="display:none">
+<ul><li>file1</li><li>file2</li></ul>
+</div>
+</div>`;
+});
+document.getElementById("container").innerHTML=html;
 }
 
 function updateSummary(){
-    let done = 0, process = 0, notyet = 0;
+let done=0,process=0,notyet=0;
 
-    data.forEach(u => {
-        if(u.progress === 100) done++;
-        else if(u.progress === 0) notyet++;
-        else process++;
-    });
+data.forEach(u=>{
+if(u.progress==100) done++;
+else if(u.progress==0) notyet++;
+else process++;
+});
 
-    let total = data.length;
-    let percent = Math.round((done / total) * 100);
+let total=data.length;
+let percent=Math.round(done/total*100);
 
-    document.getElementById("done").innerText = done;
-    document.getElementById("process").innerText = process;
-    document.getElementById("notyet").innerText = notyet;
-    document.getElementById("total").innerText = total;
-    document.getElementById("percent").innerText = percent + "%";
+document.getElementById("done").innerText=done;
+document.getElementById("process").innerText=process;
+document.getElementById("notyet").innerText=notyet;
+document.getElementById("total").innerText=total;
+document.getElementById("percent").innerText=percent+"%";
+
+document.getElementById("globalProgress").style.width=percent+"%";
+document.getElementById("globalProgress").innerText=percent+"%";
 }
 
-function render() {
-    container.innerHTML = "";
-    data.forEach(u => {
-        let s = getStatusStyle(u.progress);
+function toggle(name){
+let user=data.find(u=>u.name==name);
 
-        container.innerHTML += `
-        <div class="card">
-            <div class="user">${u.name}</div>
-            <div class="status ${s.text}">${s.icon} ${u.status}</div>
-            <div class="detail">${u.detail}</div>
-            <div class="progress-bar">
-                <div class="progress ${s.bar}" style="width:${u.progress}%">
-                    ${u.progress}%
-                </div>
-            </div>
-        </div>
-        `;
-    });
+if(user.progress<100){
+alert("Belum selesai recovery!");
+return;
 }
 
+let pass=prompt("Password:");
+if(pass===passwords[name]){
+let el=document.getElementById("file-"+name);
+el.style.display=el.style.display=="none"?"block":"none";
+}else alert("Salah!");
+}
+
+function searchUser(val){
+val=val.toLowerCase();
+document.querySelectorAll(".card").forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(val)?"block":"none";
+});
+}
+
+function init(){
+sortData();
 updateTime();
 render();
 updateSummary();
+}
 
-setInterval(() => {
-    updateTime();
-    render();
-    updateSummary();
-}, 30000);
+init();
+
+setInterval(init,30000);
 </script>
 
 </body>
