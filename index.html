@@ -54,7 +54,6 @@ h2 {
     font-weight: 500;
 }
 
-/* Warna status */
 .selesai { color: #27ae60; }
 .proses { color: #f39c12; }
 .belum { color: #e74c3c; }
@@ -81,21 +80,16 @@ h2 {
     line-height: 14px;
 }
 
-/* Warna progress */
 .green { background: linear-gradient(90deg, #2ecc71, #27ae60); }
 .yellow { background: linear-gradient(90deg, #f1c40f, #f39c12); }
 .red { background: linear-gradient(90deg, #e74c3c, #c0392b); }
 
 @media (min-width: 600px) {
-    .container {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .container { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (min-width: 900px) {
-    .container {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .container { grid-template-columns: repeat(3, 1fr); }
 }
 </style>
 </head>
@@ -115,7 +109,7 @@ const data = [
 {name:"Ara", progress:100, status:"Selesai (Recovery dari server)", detail:"Belum dicek di laptop pribadi"},
 {name:"Cornel", progress:10, status:"Belum recovery", detail:"Data ada di server, backup terdapat di laptop Santi"},
 {name:"Daniel", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya dan laptop Santi"},
-{name:"Dian", progress:20, status:"Sedang recovery", detail:"Data ditemukan di server"},
+{name:"Dian", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
 {name:"Dimas", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
 {name:"Fenni", progress:0, status:"Belum ada data", detail:""},
 {name:"Fifi", progress:0, status:"Belum ada data", detail:""},
@@ -129,7 +123,7 @@ const data = [
 {name:"Jujulia", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
 {name:"Lisa", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
 {name:"Maya", progress:0, status:"Belum ada data", detail:""},
-{name:"Milah", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
+{name:"Milah", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
 {name:"Indah", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
 {name:"Nella", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptopnya"},
 {name:"Public", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Daniel, Agung, Nella, Intan, Jessica"},
@@ -138,8 +132,8 @@ const data = [
 {name:"Steffi", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
 {name:"Vania", progress:0, status:"Belum ada data", detail:""},
 {name:"Vioni", progress:10, status:"Belum recovery", detail:"Backup terdapat di laptop Santi"},
-{name:"Wilma", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"},
-{name:"Yusuf", progress:0, status:"Belum dicek", detail:"Belum dicek di laptopnya"}
+{name:"Wilma", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"},
+{name:"Yusuf", progress:100, status:"Selesai (Recovery dari server)", detail:"Berhasil recovery dari server"}
 ];
 
 const container = document.getElementById("container");
@@ -149,24 +143,24 @@ function updateTime() {
         "Terakhir diperbarui: " + new Date().toLocaleString('id-ID');
 }
 
-function getClass(progress){
-    if(progress === 100) return ["green","selesai"];
-    if(progress === 0) return ["red","belum"];
-    return ["yellow","proses"];
+function getStatusStyle(progress){
+    if(progress === 100) return {bar:"green", text:"selesai", icon:"✔"};
+    if(progress === 0) return {bar:"red", text:"belum", icon:"✖"};
+    return {bar:"yellow", text:"proses", icon:"⚠"};
 }
 
 function render() {
     container.innerHTML = "";
     data.forEach(u => {
-        let [barClass, statusClass] = getClass(u.progress);
+        let s = getStatusStyle(u.progress);
 
         container.innerHTML += `
         <div class="card">
             <div class="user">${u.name}</div>
-            <div class="status ${statusClass}">${u.status}</div>
+            <div class="status ${s.text}">${s.icon} ${u.status}</div>
             <div class="detail">${u.detail}</div>
             <div class="progress-bar">
-                <div class="progress ${barClass}" style="width:${u.progress}%">
+                <div class="progress ${s.bar}" style="width:${u.progress}%">
                     ${u.progress}%
                 </div>
             </div>
